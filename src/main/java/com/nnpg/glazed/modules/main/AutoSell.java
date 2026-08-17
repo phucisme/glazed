@@ -47,6 +47,13 @@ public class AutoSell extends Module {
         .build()
     );
 
+    private final Setting<Boolean> autoDisable = sgGeneral.add(new BoolSetting.Builder()
+        .name("auto disable")
+        .description("Automatically disable when no more items to sell.")
+        .defaultValue(true)
+        .build()
+    );
+
     private int delayCounter;
     private boolean needsReopen;
 
@@ -97,7 +104,7 @@ public class AutoSell extends Module {
             needsReopen = hasMatchingItems(container);
             if (!needsReopen) {
                 if (notifications.get()) info("All items sold.");
-                toggle();
+                if (autoDisable.get()) toggle();
             }
             delayCounter = delay.get();
             return;
@@ -118,7 +125,7 @@ public class AutoSell extends Module {
         // nothing left to deposit, close
         GlazedSell.close();
         if (notifications.get()) info("All items sold.");
-        toggle();
+        if (autoDisable.get()) toggle();
     }
 
     private boolean hasMatchingItems(ChestMenu container) {

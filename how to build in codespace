@@ -1,0 +1,7 @@
+Kiểm tra phiên bản java đang có
+ls -la /home/codespace/java/
+
+cd /workspaces/glazed
+export JAVA_HOME=/home/codespace/java/25.0.2-ms
+chmod +x gradlew
+./gradlew build
