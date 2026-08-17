@@ -126,6 +126,7 @@ public class AutoSell extends Module {
         GlazedSell.close();
         if (notifications.get()) info("All items sold.");
         if (autoDisable.get()) toggle();
+        delayCounter = 200;
     }
 
     private boolean hasMatchingItems(ChestMenu container) {
