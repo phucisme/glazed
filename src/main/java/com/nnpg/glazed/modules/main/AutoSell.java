@@ -54,6 +54,16 @@ public class AutoSell extends Module {
         .build()
     );
 
+    private final Setting<Integer> delayReopen = sgGeneral.add(new IntSetting.Builder()
+        .name("delay reopen")
+        .description("Delay in ticks to reopen when no more items to sell.")
+        .defaultValue(200)
+        .min(0)
+        .max(2000)
+        .sliderMax(2000)
+        .build()
+    );
+
     private int delayCounter;
     private boolean needsReopen;
 
@@ -103,7 +113,7 @@ public class AutoSell extends Module {
             GlazedSell.close();
             needsReopen = hasMatchingItems(container);
             if (!needsReopen) {
-                if (notifications.get()) info("All items sold.");
+                if (notifications.get()) info("Area full, close and reopen.");
                 if (autoDisable.get()) toggle();
             }
             delayCounter = delay.get();
@@ -124,9 +134,9 @@ public class AutoSell extends Module {
 
         // nothing left to deposit, close
         GlazedSell.close();
-        if (notifications.get()) info("All items sold.");
+        if (notifications.get()) info("There nothing left to sell. Wait " + delayReopen + " tick to reopen.");
         if (autoDisable.get()) toggle();
-        delayCounter = 200;
+        delayCounter = delayReopen.get();
     }
 
     private boolean hasMatchingItems(ChestMenu container) {
