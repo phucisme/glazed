@@ -8,6 +8,7 @@
     "DefaultSettingsWidgetFactoryAccessor",
     "DefaultSettingsWidgetFactoryMixin",
     "ClientPlayNetworkHandlerMixin",
+    "AuthMeDialogMixin",
     "CameraMixin",
     "EntityMixin",
     "TridentItemMixin"
