@@ -122,10 +122,9 @@ public class AutoSell extends Module {
 
         // find the next matching item in the player inventory and shift-click it in
         int containerSlots = GlazedSell.containerSlots(container);
-        for (int slot = container.slots.size() - 1; slot >= containerSlots; slot--) {
+        for (int slot = containerSlots; slot < container.slots.size(); slot++) {
             ItemStack stack = container.getSlot(slot).getItem();
-            if (stack.isEmpty()) continue;
-            if (!shouldSellItem(stack.getItem())) continue;
+            if (!shouldSellStack(stack)) continue;
 
             mc.gameMode.handleContainerInput(container.containerId, slot, 0, ContainerInput.QUICK_MOVE, mc.player);
             delayCounter = delay.get();
@@ -143,9 +142,15 @@ public class AutoSell extends Module {
         int containerSlots = GlazedSell.containerSlots(container);
         for (int slot = containerSlots; slot < container.slots.size(); slot++) {
             ItemStack stack = container.getSlot(slot).getItem();
-            if (!stack.isEmpty() && shouldSellItem(stack.getItem())) return true;
+            if (shouldSellStack(stack)) return true;
         }
         return false;
+    }
+
+    private boolean shouldSellStack(ItemStack stack) {
+        return !stack.isEmpty()
+            && stack.getCount() == stack.getMaxStackSize()
+            && shouldSellItem(stack.getItem());
     }
 
     private boolean shouldSellItem(Item item) {
