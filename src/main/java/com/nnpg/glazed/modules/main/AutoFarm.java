@@ -15,6 +15,7 @@ import meteordevelopment.meteorclient.utils.world.BlockUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.HoeItem;
@@ -70,6 +71,13 @@ public class AutoFarm extends Module {
             .defaultValue(true)
             .build()
     );
+
+        private final Setting<Boolean> autoHoldHoe = sgGeneral.add(new BoolSetting.Builder()
+            .name("auto-hold-hoe")
+            .description("Automatically holds a hoe from the hotbar in the main hand.")
+            .defaultValue(true)
+            .build()
+        );
 
     private final Setting<Boolean> till = sgTill.add(new BoolSetting.Builder()
             .name("till")
@@ -171,6 +179,10 @@ public class AutoFarm extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
+        if (mc.player == null || mc.gameMode == null) return;
+
+        if (autoHoldHoe.get()) selectHotbarHoe();
+
         actions = 0;
         BlockIterator.register(range.get(), range.get(), (pos, state) -> {
             if (mc.player.getEyePosition().distanceTo(Vec3.atCenterOf(pos)) <= range.get())
@@ -192,6 +204,19 @@ public class AutoFarm extends Module {
             blocks.clear();
 
         });
+    }
+
+    private void selectHotbarHoe() {
+        int selectedSlot = mc.player.getInventory().getSelectedSlot();
+        if (mc.player.getInventory().getItem(selectedSlot).getItem() instanceof HoeItem) return;
+
+        for (int slot = 0; slot < 9; slot++) {
+            if (mc.player.getInventory().getItem(slot).getItem() instanceof HoeItem) {
+                mc.player.getInventory().setSelectedSlot(slot);
+                mc.player.connection.send(new ServerboundSetCarriedItemPacket(slot));
+                return;
+            }
+        }
     }
 
     private boolean till(BlockPos pos, Block block) {
