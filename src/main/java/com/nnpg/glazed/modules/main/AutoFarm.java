@@ -10,8 +10,10 @@ import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.misc.Pool;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.world.BlockIterator;
 import meteordevelopment.meteorclient.utils.world.BlockUtils;
+import meteordevelopment.meteorclient.utils.world.TickRate;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,6 +43,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 public class AutoFarm extends Module {
+    private static final int MAX_PING = 300;
+    private static final double MIN_TPS = 15;
+
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgTill = settings.createGroup("Till");
     private final SettingGroup sgHarvest = settings.createGroup("Harvest");
@@ -71,6 +76,13 @@ public class AutoFarm extends Module {
             .defaultValue(true)
             .build()
     );
+
+        private final Setting<Boolean> pauseOnLag = sgGeneral.add(new BoolSetting.Builder()
+            .name("pause-on-lag")
+            .description("Pause farming while ping is high or server TPS is low.")
+            .defaultValue(true)
+            .build()
+        );
 
         private final Setting<Boolean> autoHoldHoe = sgGeneral.add(new BoolSetting.Builder()
             .name("auto-hold-hoe")
@@ -180,6 +192,7 @@ public class AutoFarm extends Module {
     @EventHandler
     private void onTick(TickEvent.Pre event) {
         if (mc.player == null || mc.gameMode == null) return;
+        if (pauseOnLag.get() && isLagging()) return;
 
         if (autoHoldHoe.get()) selectHotbarHoe();
 
@@ -204,6 +217,12 @@ public class AutoFarm extends Module {
             blocks.clear();
 
         });
+    }
+
+    private boolean isLagging() {
+        return PlayerUtils.getPing() >= MAX_PING
+                || TickRate.INSTANCE.getTickRate() < MIN_TPS
+                || TickRate.INSTANCE.getTimeSinceLastTick() >= 1f;
     }
 
     private void selectHotbarHoe() {
