@@ -94,6 +94,7 @@ public class GlazedAddon extends MeteorAddon {
         Modules.get().add(new AutoFarm());
         Modules.get().add(new AutoLogin());
         Modules.get().add(new AutoRepair());
+        Modules.get().add(new AutoPickItem());
 
         // pvp
         Modules.get().add(new AimAssist());
@@ -102,6 +103,7 @@ public class GlazedAddon extends MeteorAddon {
         Modules.get().add(new AutoDoubleHand());
         Modules.get().add(new AutoInvTotem());
         Modules.get().add(new CrystalMacro());
+        Modules.get().add(new KillAuraPlus());
         Modules.get().add(new HoverTotem());
         Modules.get().add(new KeyPearl());
         Modules.get().add(new LungeMacro());

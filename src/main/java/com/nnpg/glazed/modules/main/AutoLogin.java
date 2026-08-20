@@ -14,7 +14,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.dialog.DialogScreen;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.util.List;
@@ -99,7 +99,7 @@ public class AutoLogin extends Module {
         boolean authMeTitle = title.contains("đăng nhập sư phụ")
             || title.contains("đăng nhập sử dụng");
         boolean recognized = authMeTitle || (loginText && passwordText)
-            || (findPasswordBox(screen.children()) != null && !(screen instanceof ChatScreen));
+            || (findPasswordBox(screen.children()) != null && screen instanceof DialogScreen<?>);
 
         return recognized;
     }
