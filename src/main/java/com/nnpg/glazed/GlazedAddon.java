@@ -95,6 +95,9 @@ public class GlazedAddon extends MeteorAddon {
         Modules.get().add(new AutoLogin());
         Modules.get().add(new AutoRepair());
         Modules.get().add(new AutoPickItem());
+        Modules.get().add(new AutoCraft());
+        Modules.get().add(new AutoEnchant());
+        Modules.get().add(new AutoGrind());
 
         // pvp
         Modules.get().add(new AimAssist());
