@@ -106,11 +106,12 @@ public class GlazedAddon extends MeteorAddon {
         Modules.get().add(new AutoDoubleHand());
         Modules.get().add(new AutoInvTotem());
         Modules.get().add(new CrystalMacro());
-        Modules.get().add(new KillAuraPlus());
         Modules.get().add(new HoverTotem());
         Modules.get().add(new KeyPearl());
         Modules.get().add(new LungeMacro());
         Modules.get().add(new ShieldBreaker());
+        Modules.get().add(new KillAuraPlus());
+        Modules.get().add(new AutoRespawnPlus());
     }
 
     @EventHandler
