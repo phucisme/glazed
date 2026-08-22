@@ -102,6 +102,12 @@ public class KillAuraPlus extends Module {
 		.defaultValue(true).build());
 	private final Setting<Boolean> ignoreTamed = sgTargeting.add(new BoolSetting.Builder()
 		.name("ignore-tamed").description("Will avoid attacking mobs you tamed.").defaultValue(false).build());
+	private final Setting<List<String>> noPvpDimensions = sgTargeting.add(new StringListSetting.Builder()
+		.name("no-pvp-dimensions").description("Dimensions where players should not be attacked.")
+		.defaultValue(new ArrayList<>()).build());
+	private final Setting<Boolean> addCurrentDimension = sgTargeting.add(new BoolSetting.Builder()
+		.name("add-current-dimension").description("Adds the current dimension to the no-PvP list.")
+		.defaultValue(false).onChanged(this::handleAddCurrentDimension).build());
 
 	private final Setting<Boolean> pauseOnLag = sgTiming.add(new BoolSetting.Builder()
 		.name("pause-on-lag").description("Pauses if the server is lagging.").defaultValue(true).build());
@@ -201,6 +207,7 @@ public class KillAuraPlus extends Module {
 	private boolean entityCheck(Entity entity) {
 		if (entity.equals(mc.player) || entity.equals(mc.getCameraEntity())) return false;
 		if ((entity instanceof LivingEntity livingEntity && livingEntity.isDeadOrDying()) || !entity.isAlive()) return false;
+		if (entity instanceof Player && noPvpDimensions.get().stream().anyMatch(dimension -> dimension.equalsIgnoreCase(getCurrentDimension()))) return false;
 		AABB hitbox = entity.getBoundingBox();
 		if (!PlayerUtils.isWithin(Mth.clamp(mc.player.getX(), hitbox.minX, hitbox.maxX), Mth.clamp(mc.player.getY(), hitbox.minY, hitbox.maxY), Mth.clamp(mc.player.getZ(), hitbox.minZ, hitbox.maxZ), range.get())) return false;
 		if (!entities.get().contains(entity.getType())) return false;
@@ -222,6 +229,26 @@ public class KillAuraPlus extends Module {
 			if (entity instanceof AgeableMob && !(entity instanceof Frog || entity instanceof Parrot)) return passiveMobAgeFilter.get().test(livingEntity);
 		}
 		return true;
+	}
+
+	private String getCurrentDimension() {
+		return mc.level == null ? "" : mc.level.dimension().identifier().toString();
+	}
+
+	private void handleAddCurrentDimension(Boolean value) {
+		if (!value) return;
+		addDimension(getCurrentDimension());
+		addCurrentDimension.set(false);
+	}
+
+	private void addDimension(String dimension) {
+		String normalizedDimension = dimension.trim();
+		if (normalizedDimension.isEmpty()) return;
+
+		List<String> dimensions = new ArrayList<>(noPvpDimensions.get());
+		if (dimensions.stream().anyMatch(existing -> existing.equalsIgnoreCase(normalizedDimension))) return;
+		dimensions.add(normalizedDimension);
+		noPvpDimensions.set(dimensions);
 	}
 
 	private boolean delayCheck() {
