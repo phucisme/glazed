@@ -6,6 +6,7 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.Item;
@@ -75,11 +76,15 @@ public class AutoSell extends Module {
     public void onActivate() {
         delayCounter = 20;
         needsReopen = false;
+        GlazedSell.setBackgroundMode(false);
     }
 
     @Override
     public void onDeactivate() {
         needsReopen = false;
+        boolean wasBackgroundMode = GlazedSell.isBackgroundMode();
+        GlazedSell.setBackgroundMode(false);
+        if (wasBackgroundMode) GlazedSell.close();
     }
 
     @EventHandler
@@ -92,6 +97,7 @@ public class AutoSell extends Module {
         }
 
         if (needsReopen) {
+            GlazedSell.setBackgroundMode(true);
             GlazedSell.openSell();
             needsReopen = false;
             delayCounter = 20;
@@ -101,9 +107,15 @@ public class AutoSell extends Module {
         ChestMenu container = GlazedSell.container();
 
         if (container == null) {
+            GlazedSell.setBackgroundMode(true);
             GlazedSell.openSell();
             delayCounter = 20;
             return;
+        }
+
+        GlazedSell.setBackgroundMode(true);
+        if (mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() == container) {
+            GlazedSell.hideScreen();
         }
 
         int usable = GlazedSell.usableSlots(container);

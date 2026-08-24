@@ -5,6 +5,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.dialog.DialogScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerInput;
@@ -19,7 +20,21 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 // makes you confirm twice, sometimes a glass pane and sometimes a Yes / No screen
 public final class GlazedSell {
 
+    private static boolean backgroundMode;
+
     private GlazedSell() {}
+
+    public static void setBackgroundMode(boolean enabled) {
+        backgroundMode = enabled;
+    }
+
+    public static boolean isBackgroundMode() {
+        return backgroundMode;
+    }
+
+    public static void hideScreen() {
+        if (mc.screen != null) mc.setScreen(null);
+    }
 
     public static void openSell() {
         ChatUtils.sendPlayerMsg("/sell");
@@ -153,7 +168,13 @@ public final class GlazedSell {
     }
 
     public static void close() {
-        if (mc.player != null) mc.player.closeContainer();
+        if (mc.player == null) return;
+
+        if (mc.screen == null
+            || mc.screen instanceof AbstractContainerScreen<?> screen
+                && screen.getMenu() == mc.player.containerMenu) {
+            mc.player.closeContainer();
+        }
     }
 
     public static boolean isOurScreen(AbstractContainerMenu handler) {
