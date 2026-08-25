@@ -2,6 +2,7 @@ package com.nnpg.glazed;
 
 import com.nnpg.glazed.modules.esp.*;
 import com.nnpg.glazed.modules.main.*;
+import com.nnpg.glazed.modules.main.elytra.*;
 import com.nnpg.glazed.modules.pvp.*;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -98,6 +99,7 @@ public class GlazedAddon extends MeteorAddon {
         Modules.get().add(new AutoCraft());
         Modules.get().add(new AutoEnchant());
         Modules.get().add(new AutoGrind());
+        Modules.get().add(new ElytraFly());
 
         // pvp
         Modules.get().add(new AimAssist());
