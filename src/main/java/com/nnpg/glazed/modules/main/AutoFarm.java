@@ -67,6 +67,16 @@ public class AutoFarm extends Module {
             .description("Amount of operations that can be applied in one tick.")
             .min(1)
             .defaultValue(1)
+            .max(100)
+            .build()
+    );
+
+    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
+            .name("delay")
+            .description("Delay between farming batches in ticks.")
+            .min(0)
+            .defaultValue(0)
+            .max(100)
             .build()
     );
 
@@ -162,6 +172,7 @@ public class AutoFarm extends Module {
     private final List<BlockPos.MutableBlockPos> blocks = new ArrayList<>();
 
     int actions = 0;
+    private int actionTimer = 0;
 
     public AutoFarm() {
         super(GlazedAddon.CATEGORY, "auto-farm", "All-in-one farm utility.");
@@ -170,6 +181,7 @@ public class AutoFarm extends Module {
     @Override
     public void onDeactivate() {
         replantMap.clear();
+        actionTimer = 0;
     }
 
     @EventHandler
@@ -196,6 +208,11 @@ public class AutoFarm extends Module {
 
         if (autoHoldHoe.get()) selectHotbarHoe();
 
+        if (actionTimer < delay.get()) {
+            actionTimer++;
+            return;
+        }
+
         actions = 0;
         BlockIterator.register(range.get(), range.get(), (pos, state) -> {
             if (mc.player.getEyePosition().distanceTo(Vec3.atCenterOf(pos)) <= range.get())
@@ -212,6 +229,8 @@ public class AutoFarm extends Module {
                     actions++;
                 if (actions >= bpt.get()) break;
             }
+
+            if (actions > 0) actionTimer = 0;
 
             for (BlockPos.MutableBlockPos blockPos : blocks) blockPosPool.free(blockPos);
             blocks.clear();
@@ -289,8 +308,7 @@ public class AutoFarm extends Module {
             });
         }
         if (findItemResult != null && findItemResult.found()) {
-            BlockUtils.place(pos.above(), findItemResult, rotate.get(), -100, false);
-            return true;
+            return BlockUtils.place(pos.above(), findItemResult, rotate.get(), -100, false);
         }
         return false;
     }
